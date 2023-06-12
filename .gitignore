@@ -1,0 +1,5 @@
+dist/
+_assets/
+node_modules/
+yarn-error.log
+desktop.ini
