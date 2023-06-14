@@ -37,18 +37,21 @@ const colorSpaces = {
 type ColorSpaces = (typeof colorSpaces)[keyof typeof colorSpaces];
 
 const ColorSpaceContext = createContext<ColorSpaces[number]>("hex");
+const VersionContext = createContext<Version>("v3");
+const LatestPicksContext = createContext(null);
 
 type ColorScaleProps = {
-  color: (typeof allColors)[Version][keyof (typeof allColors)[Version]];
+  color: DeepValues<typeof allColors, 1>;
+  name: DeepKeys<typeof allColors, 1>;
 };
 
-function ColorScale({ color }: ColorScaleProps) {
+function ColorScale({ color, name }: ColorScaleProps) {
   return (
     <div class="grid mt-3 grid-cols-1 sm:grid-cols-11 gap-y-3 gap-x-2 sm:mt-2 2xl:mt-0">
       {
         // @ts-expect-error (don't know why this is inferred to "never"…)
         getEntries(color).map(([shade, value]) => (
-          <Color value={value} shade={shade} />
+          <Color value={value} shade={shade} name={name} />
         ))
       }
     </div>
@@ -56,12 +59,15 @@ function ColorScale({ color }: ColorScaleProps) {
 }
 
 type ColorProps = {
-  shade: DeepKeys<(typeof allColors)[Version], 1>;
-  value: DeepValues<(typeof allColors)[Version], 1>;
+  shade: DeepKeys<typeof allColors, 2>;
+  value: DeepValues<typeof allColors, 2>;
+  name: DeepKeys<typeof allColors, 1>;
 };
 
-function Color({ shade, value }: ColorProps) {
+function Color({ shade, value, name }: ColorProps) {
   const colorSpace = useContext(ColorSpaceContext);
+  const version = useContext(VersionContext);
+  const setLatestPicks = useContext(LatestPicksContext);
 
   const valueInColorSpace = match<ColorSpaces[number]>(colorSpace)
     .with("hex", () => value)
@@ -111,11 +117,21 @@ function Color({ shade, value }: ColorProps) {
         class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5"
         onClick={() => {
           navigator.clipboard.writeText(valueInColorSpace);
+          let maybeLatestPicks = localStorage.getItem("latestPicks");
+          let latestPicks = maybeLatestPicks
+            ? JSON.parse(maybeLatestPicks)
+            : [];
+          latestPicks.unshift({ version, name, shade, value });
+          localStorage.setItem("latestPicks", JSON.stringify(latestPicks));
+          setLatestPicks(latestPicks);
 
-          toast(`Color "${valueInColorSpace}" was copied to clipboard!`, {
-            position: "bottom-right",
-            progressStyle: { background: value },
-          });
+          toast(
+            `Color ${name}-${shade} (${version}) was copied to clipboard as "${valueInColorSpace}" `,
+            {
+              position: "bottom-right",
+              progressStyle: { background: value },
+            }
+          );
         }}
       >
         <div
@@ -150,21 +166,30 @@ export default function Popup() {
     return "hex";
   });
 
+  const [latestPicks, setLatestPicks] = useState<Array<{
+    version: Version;
+    name: DeepKeys<typeof allColors, 1>;
+    color: DeepValues<typeof allColors, 1>;
+  }> | null>(() => {
+    const picks = localStorage.getItem("latestPicks");
+    return picks ? JSON.parse(picks) : null;
+  });
+
   return colorSpace ? (
-    <div class="py-8 px-16">
+    <div class="py-8">
+      <VersionSelect
+        onChange={(value: Version) => {
+          localStorage.setItem("version", value);
+          setVersion(value);
+        }}
+        selected={version}
+      />
       <ToastContainer />
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between px-16">
         <div class="flex items-center gap-3 mb-4">
-          <Logo class="w-8 h-8" />
+          <Logo class="w-6 h-6" />
           <h1 class="text-2xl font-bold">Tailwind colors</h1>
         </div>
-        <VersionSelect
-          onChange={(value: Version) => {
-            localStorage.setItem("version", value);
-            setVersion(value);
-          }}
-          selected={version}
-        />
       </div>
 
       <ColorSpaceSelect
@@ -178,16 +203,38 @@ export default function Popup() {
         }}
         checkedValue={colorSpace}
       />
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 sm:grid-cols-1">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 sm:grid-cols-1 px-16 pt-4">
         <ColorSpaceContext.Provider value={colorSpace}>
-          {getEntries(allColors[version]).map(([name, value]) => (
-            <div class="2xl:contents">
-              <div class="text-sm font-semibold text-slate-900 dark:text-slate-200 2xl:col-end-1 2xl:pt-2.5 capitalize">
-                {name}
+          <VersionContext.Provider value={version}>
+            <LatestPicksContext.Provider value={setLatestPicks}>
+              {getEntries(allColors[version]).map(([name, value]) => (
+                <div class="2xl:contents">
+                  <div class="text-sm font-semibold text-slate-900 dark:text-slate-200 2xl:col-end-1 2xl:pt-2.5 capitalize">
+                    {name}
+                  </div>
+                  <ColorScale color={value} name={name} />
+                </div>
+              ))}
+            </LatestPicksContext.Provider>
+            <div class="fixed bottom-0 left-0 right-0 h-24 bg-white shadow border-t py-2 px-16">
+              <h2 class="mb-2 font-semibold ">Latest picks</h2>
+              <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 sm:grid-cols-1">
+                <div class="grid mt-3 grid-cols-1 sm:grid-cols-11 gap-y-3 gap-x-2 sm:mt-2 2xl:mt-0">
+                  {latestPicks?.map((pick) => (
+                    <div class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5">
+                      <div
+                        class="h-4 w-10 rounded dark:ring-1 dark:ring-inset dark:ring-white/10 sm:w-full"
+                        // There is a bug not rendering bg color in some color spaces. Until resolved, fallback to default (hex)?
+                        // Also, the rendered DOM value is always rgb, no matter what the color space is (which is Chrome default behavior).
+                        style={{ backgroundColor: pick.value }}
+                      ></div>
+                      {pick.name}-{pick.shade} ({pick.version})
+                    </div>
+                  ))}
+                </div>
               </div>
-              <ColorScale color={value} />
             </div>
-          ))}
+          </VersionContext.Provider>
         </ColorSpaceContext.Provider>
       </div>
     </div>
@@ -213,7 +260,7 @@ function ColorSpaceSelect({
 }: ColorSpaceSelectProps) {
   const renderRadioButtons = (key: string | number, index: number) => {
     return (
-      <div key={key} class="relative inline-flex mb-4">
+      <div key={key} class="relative inline-flex mb-2">
         <input
           type="radio"
           id={`${name}-${index}`}
@@ -235,7 +282,7 @@ function ColorSpaceSelect({
 
   if (name && options) {
     return (
-      <div>
+      <div class="sticky top-0 bg-white z-20 shadow-lg px-16 pt-1.5">
         <div>
           <label htmlFor={name} class="block mb-2 font-semibold">
             {label}
