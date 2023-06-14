@@ -3,69 +3,70 @@ import { useContext, useState } from "preact/hooks";
 
 import { match } from "ts-pattern";
 import convert from "color-convert";
-import colors from "tailwindcss/colors";
-import type { DefaultColors } from "tailwindcss/types/generated/colors";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import Logo from "../components/logo";
+import VersionSelect from "../components/version-select";
+import allColors from "../colors/colors";
+
 import "./popup.css";
 
-const colorsToOmit = [
-  // does not make sense to include
-  "inherit",
-  "current",
-  "transparent",
-  "black",
-  "white",
-  // deprecated names
-  "lightBlue",
-  "warmGray",
-  "trueGray",
-  "coolGray",
-  "blueGray",
-] as const;
+import { getEntries } from "../utils/utils";
+import type { DeepKeys, DeepValues } from "../utils/utils";
 
-const ColorSpaceContext = createContext("hex");
+export const versions = ["v1", "v2", "v3"] as const;
+export type Version = (typeof versions)[number];
 
-type ColorsWithoutOmitted = Omit<DefaultColors, (typeof colorsToOmit)[number]>;
+const colorSpaces = {
+  hex: "hex",
+  "hex (alpha)": "hex (alpha)",
+  "hex (no '#')": "hex (no '#')",
+  rgb: "rgb",
+  "rgb (legacy)": "rgb (legacy)",
+  rgba: "rgba",
+  "rgba (legacy)": "rgba (legacy)",
+  lab: "lab",
+  hsl: "hsl",
+  hsla: "hsla",
+  hwb: "hwb",
+  cmyk: "cmyk",
+} as const;
 
-const pickableColorsNames = (
-  Object.keys(colors) as Array<keyof ColorsWithoutOmitted>
-).filter((key) => !colorsToOmit.includes(key));
+type ColorSpaces = (typeof colorSpaces)[keyof typeof colorSpaces];
+
+const ColorSpaceContext = createContext<ColorSpaces[number]>("hex");
 
 type ColorScaleProps = {
-  color: ColorsWithoutOmitted[keyof ColorsWithoutOmitted];
+  color: (typeof allColors)[Version][keyof (typeof allColors)[Version]];
 };
 
 function ColorScale({ color }: ColorScaleProps) {
   return (
     <div class="grid mt-3 grid-cols-1 sm:grid-cols-11 gap-y-3 gap-x-2 sm:mt-2 2xl:mt-0">
-      {(
-        Object.keys(color) as Array<
-          keyof ColorsWithoutOmitted[keyof ColorsWithoutOmitted]
-        >
-      ).map((shade) => (
-        <Color value={color[shade]} shade={shade} />
-      ))}
+      {
+        // @ts-expect-error (don't know why this is inferred to "never"…)
+        getEntries(color).map(([shade, value]) => (
+          <Color value={value} shade={shade} />
+        ))
+      }
     </div>
   );
 }
 
 type ColorProps = {
-  // What. The. Actual. F***.
-  shade: keyof ColorsWithoutOmitted[keyof ColorsWithoutOmitted];
-  value: ColorsWithoutOmitted[keyof ColorsWithoutOmitted][keyof ColorsWithoutOmitted[keyof ColorsWithoutOmitted]];
+  shade: DeepKeys<(typeof allColors)[Version], 1>;
+  value: DeepValues<(typeof allColors)[Version], 1>;
 };
 
 function Color({ shade, value }: ColorProps) {
   const colorSpace = useContext(ColorSpaceContext);
 
-  const notify = (t = "") => toast(t, { position: "bottom-right" });
-
-  const valueInColorSpace = match(colorSpace)
+  const valueInColorSpace = match<ColorSpaces[number]>(colorSpace)
     .with("hex", () => value)
-    .with("hex alpha", () => value + "ff")
+    .with("hex (alpha)", () => value + "ff")
+    .with("hex (no '#')", () => value.replace("#", ""))
     .with("rgb", () => {
       const [r, g, b] = convert.hex.rgb(value);
       return `rgb(${r} ${g} ${b})`;
@@ -110,11 +111,11 @@ function Color({ shade, value }: ColorProps) {
         class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5"
         onClick={() => {
           navigator.clipboard.writeText(valueInColorSpace);
-          (document.querySelector(":root") as HTMLElement).style.setProperty(
-            "--toastify-color-progress-light",
-            value
-          );
-          notify(`Color "${valueInColorSpace}" was copied to clipboard!`);
+
+          toast(`Color "${valueInColorSpace}" was copied to clipboard!`, {
+            position: "bottom-right",
+            progressStyle: { background: value },
+          });
         }}
       >
         <div
@@ -137,57 +138,64 @@ function Color({ shade, value }: ColorProps) {
 }
 
 export default function Popup() {
-  const [colorSpace, setColorSpace] = useState(() => {
+  const [version, setVersion] = useState<Version>(() => {
+    const item = localStorage.getItem("version") as (typeof versions)[number];
+    if (item) return item;
+    return "v3";
+  });
+
+  const [colorSpace, setColorSpace] = useState<ColorSpaces[number]>(() => {
     const item = localStorage.getItem("colorSpace");
     if (item) return item;
     return "hex";
   });
 
   return colorSpace ? (
-    <ColorSpaceContext.Provider value={colorSpace}>
-      <div class="p-8">
-        <ToastContainer />
-        <h1 class="text-2xl font-bold mb-4">Tailwind colors</h1>
-        <ColorSpaceSelect
-          name="colorspace"
-          options={{
-            hex: "hex",
-            "hex alpha": "hex alpha",
-            rgb: "rgb",
-            "rgb (legacy)": "rgb (legacy)",
-            rgba: "rgba",
-            "rgba (legacy)": "rgba (legacy)",
-            lab: "lab",
-            hsl: "hsl",
-            hsla: "hsla",
-            hwb: "hwb",
-            cmyk: "cmyk",
+    <div class="py-8 px-16">
+      <ToastContainer />
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 mb-4">
+          <Logo class="w-8 h-8" />
+          <h1 class="text-2xl font-bold">Tailwind colors</h1>
+        </div>
+        <VersionSelect
+          onChange={(value: Version) => {
+            localStorage.setItem("version", value);
+            setVersion(value);
           }}
-          label="Pick color space"
-          onInput={async (e) => {
-            const value = (e.target as HTMLInputElement).value;
-            localStorage.setItem("colorSpace", value);
-            setColorSpace(value);
-          }}
-          checkedValue={colorSpace}
+          selected={version}
         />
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 sm:grid-cols-1">
-          {pickableColorsNames.map((color) => (
+      </div>
+
+      <ColorSpaceSelect
+        name="colorspace"
+        options={colorSpaces}
+        label="Pick color space"
+        onInput={async (e) => {
+          const value = (e.target as HTMLInputElement).value;
+          localStorage.setItem("colorSpace", value);
+          setColorSpace(value);
+        }}
+        checkedValue={colorSpace}
+      />
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 sm:grid-cols-1">
+        <ColorSpaceContext.Provider value={colorSpace}>
+          {getEntries(allColors[version]).map(([name, value]) => (
             <div class="2xl:contents">
               <div class="text-sm font-semibold text-slate-900 dark:text-slate-200 2xl:col-end-1 2xl:pt-2.5 capitalize">
-                {color}
+                {name}
               </div>
-              <ColorScale color={colors[color]} />
+              <ColorScale color={value} />
             </div>
           ))}
-        </div>
+        </ColorSpaceContext.Provider>
       </div>
-    </ColorSpaceContext.Provider>
+    </div>
   ) : null;
 }
 
 type ColorSpaceSelectProps = {
-  name: string;
+  name: ColorSpaces[number];
   options: Record<string, any>;
   label: string;
   onInput: (e: Event) => void;
