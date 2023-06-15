@@ -288,7 +288,7 @@ export default function Popup() {
 
   return colorSpace ? (
     <div class="py-8 relative">
-      <div class="px-8 md:px-16 md:sticky md:top-5 md:right-0 z-30 h-0">
+      <div class="px-8 md:px-16 lg:sticky lg:top-5 lg:right-0 z-30 h-0">
         <VersionSelect
           onChange={(value: Version) => {
             localStorage.setItem("version", value);
