@@ -301,7 +301,7 @@ export default function Popup() {
       <div class="flex items-center justify-between px-8 md:px-16">
         <div class="flex items-center gap-3 mb-4">
           <Logo class="w-6 h-6" />
-          <h1 class="text-2xl font-bold">Tailwind colors</h1>
+          <h1 class="text-2xl font-bold leading-none">Tailwind colors</h1>
         </div>
       </div>
 
