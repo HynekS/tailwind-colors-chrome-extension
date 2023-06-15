@@ -176,14 +176,16 @@ export default function Popup() {
   });
 
   return colorSpace ? (
-    <div class="py-8">
-      <VersionSelect
-        onChange={(value: Version) => {
-          localStorage.setItem("version", value);
-          setVersion(value);
-        }}
-        selected={version}
-      />
+    <div class="py-8 relative">
+      <div class="px-8 md:px-16 md:sticky md:top-5 md:right-0 z-30 h-0">
+        <VersionSelect
+          onChange={(value: Version) => {
+            localStorage.setItem("version", value);
+            setVersion(value);
+          }}
+          selected={version}
+        />
+      </div>
       <ToastContainer />
       <div class="flex items-center justify-between px-16">
         <div class="flex items-center gap-3 mb-4">
