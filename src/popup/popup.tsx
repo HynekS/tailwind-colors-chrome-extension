@@ -288,7 +288,7 @@ export default function Popup() {
 
   return colorSpace ? (
     <div class="py-8 relative">
-      <div class="px-8 md:px-16 lg:sticky lg:top-5 lg:right-0 z-30 h-0">
+      <div class="px-8 md:px-16 xl:sticky xl:top-5 xl:right-0 z-30 h-0">
         <VersionSelect
           onChange={(value: Version) => {
             localStorage.setItem("version", value);
@@ -379,7 +379,7 @@ function ColorSpaceSelect({
 
   if (name && options) {
     return (
-      <div class="sticky top-0 bg-white z-20 shadow-lg px-8 md:px-16 pt-1.5">
+      <div class="sticky top-0 bg-white z-20 shadow-lg px-8 md:px-16 pt-1.5 xl:pr-48">
         <div>
           <label htmlFor={name} class="block mb-2 font-semibold">
             {label}
