@@ -6,6 +6,7 @@ import convert from "color-convert";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 
 import Logo from "../components/logo";
 import VersionSelect from "../components/version-select";
@@ -169,6 +170,8 @@ function Color({ shade, value, name }: ColorProps) {
             `Color ${name}-${shade} (${version}) was copied to clipboard as "${valueInColorSpace}" `,
             {
               position: "bottom-right",
+              className:
+                "text-slate-950 dark:bg-slate-700 dark:text-white dark:[&_svg]:fill-white",
               progressStyle: { background: value },
             }
           );
@@ -239,17 +242,17 @@ function LatestPicks({ latestPicks }: LatestPickProps) {
   const setLatestPicks = useContext(LatestPicksContext);
 
   return (
-    <div class="fixed bottom-0 left-0 right-0 bg-white shadow border-t pt-2 pb-4 px-8 md:px-16">
+    <div class="fixed bottom-0 left-0 right-0 shadow border-t dark:border-t-slate-600 pt-2 pb-4 px-8 md:px-16 bg-white dark:bg-slate-900 dark:text-white">
       <h2 class="sm:mb-2 font-semibold inline-block mr-3">Latest picks</h2>
       {latestPicks.length ? (
         <button
-          class="border rounded text-xs inline-block px-1 py-0.5"
+          class="border rounded text-xs inline-block px-1 py-0.5 dark:border-slate-600 dark:text-slate-400"
           onClick={() => {
             localStorage.setItem("latestPicks", JSON.stringify([]));
             setLatestPicks([]);
           }}
         >
-          Clear all
+          clear all
         </button>
       ) : null}
       <div class="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-x-2 gap-y-8 ">
@@ -287,8 +290,25 @@ export default function Popup() {
   });
 
   return colorSpace ? (
-    <div class="py-8 relative">
-      <div class="px-8 md:px-16 xl:sticky xl:top-5 xl:right-0 z-30 h-0">
+    <div class="py-8 relative bg-white dark:bg-slate-900">
+      <div class="px-8 md:px-16 relative top-4 xl:sticky xl:top-12 xl:right-0 z-30 h-0 flex items-center justify-end gap-3">
+        <button
+          class="p-1 inline text-slate-500"
+          onClick={() => {
+            const isDark = document.documentElement.classList.contains("dark");
+            if (isDark) {
+              localStorage.removeItem("theme");
+            } else {
+              localStorage.setItem("theme", "dark");
+            }
+
+            document.documentElement.classList.toggle("dark");
+          }}
+          aria-label="toggle theme"
+        >
+          <MoonIcon stroke="currentColor" class="w-5 h-5 hidden dark:block" />
+          <SunIcon stroke="currentColor" class="w-5 h-5 dark:hidden" />
+        </button>
         <VersionSelect
           onChange={(value: Version) => {
             localStorage.setItem("version", value);
@@ -298,7 +318,7 @@ export default function Popup() {
         />
       </div>
       <ToastContainer />
-      <div class="flex items-center justify-between px-8 md:px-16">
+      <div class="flex items-center justify-between px-8 md:px-16 dark:text-slate-200">
         <div class="flex items-center gap-3 mb-4">
           <Logo class="w-6 h-6" />
           <h1 class="text-2xl font-bold leading-none">Tailwind colors</h1>
@@ -369,7 +389,7 @@ function ColorSpaceSelect({
         />
         <label
           htmlFor={`${name}-${index}`}
-          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer"
+          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer dark:peer-checked:text-blue-400 dark:peer-checked:border-blue-400 dark:border-slate-600"
         >
           {key}
         </label>
@@ -379,7 +399,7 @@ function ColorSpaceSelect({
 
   if (name && options) {
     return (
-      <div class="sticky top-0 bg-white z-20 shadow-lg px-8 md:px-16 pt-1.5 xl:pr-48">
+      <div class="sticky top-0 z-20 shadow-lg border-b border-b-transparent px-8 md:px-16 pt-1.5 xl:pr-56 bg-white dark:bg-slate-900 dark:text-slate-300 dark:border-b-slate-600">
         <div>
           <label htmlFor={name} class="block mb-2 font-semibold">
             {label}

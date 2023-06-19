@@ -2,7 +2,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const ZipPlugin = require("zip-webpack-plugin");
 
 module.exports = {
-  mode: "production",
+  mode: "development",
   entry: {
     popup: "./src/popup.tsx",
     background: "./src/background.ts",
