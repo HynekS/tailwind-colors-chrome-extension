@@ -4,7 +4,7 @@
 
 <h1 align="center">Tailwind colors</h1>
 
-Tailwind Colors is a Chrome extension designed to simplify access to the [Tailwind CSS](https://tailwindcss.com) color palette 🎨.
+__Tailwind Colors__ is a Chrome extension designed to simplify access to the [Tailwind CSS](https://tailwindcss.com) color palette 🎨.
 
 - No need to search for docs; all you need is one click.
 - You can pick any color space you want (hex, rgb, lab, hsl, cmyk, and others) and copy the color value in that space with just a click.
