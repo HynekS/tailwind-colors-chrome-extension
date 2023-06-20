@@ -383,13 +383,13 @@ function ColorSpaceSelect({
           id={`${name}-${index}`}
           name={name}
           value={String(options[key])}
-          class="hidden peer"
+          class="peer sr-only"
           onInput={onInput}
           checked={String(options[key]) === checkedValue}
         />
         <label
           htmlFor={`${name}-${index}`}
-          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer dark:peer-checked:text-blue-400 dark:peer-checked:border-blue-400 dark:border-slate-600"
+          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer dark:peer-checked:text-blue-400 dark:peer-checked:border-blue-400 dark:border-slate-600 peer-focus:outline-none peer-focus-visible:border-indigo-500 peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-opacity-75 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-orange-300"
         >
           {key}
         </label>
