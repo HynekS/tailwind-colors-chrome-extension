@@ -246,7 +246,7 @@ function LatestPicks({ latestPicks }: LatestPickProps) {
       <h2 class="sm:mb-2 font-semibold inline-block mr-3">Latest picks</h2>
       {latestPicks.length ? (
         <button
-          class="border rounded text-xs inline-block px-1 py-0.5 dark:border-slate-600 dark:text-slate-400"
+          class="border rounded text-xs inline-block px-1 py-0.5 dark:border-slate-600 dark:text-slate-400 focus-visible:border-indigo-500 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 focus-visible:ring-opacity-75"
           onClick={() => {
             localStorage.setItem("latestPicks", JSON.stringify([]));
             setLatestPicks([]);
@@ -293,7 +293,7 @@ export default function App() {
     <div class="py-8 relative bg-white dark:bg-slate-900">
       <div class="px-8 md:px-16 relative top-4 xl:sticky xl:top-12 xl:right-0 z-30 h-0 flex items-center justify-end gap-3">
         <button
-          class="p-1 inline text-slate-500"
+          class="p-1 inline text-slate-500 border-transparent rounded focus-visible:border-indigo-500 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 focus-visible:ring-opacity-75"
           onClick={() => {
             const isDark = document.documentElement.classList.contains("dark");
             if (isDark) {
@@ -388,7 +388,7 @@ function ColorSpaceSelect({
         />
         <label
           htmlFor={`${name}-${index}`}
-          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer dark:peer-checked:text-blue-400 dark:peer-checked:border-blue-400 dark:border-slate-600 peer-focus:outline-none peer-focus-visible:border-indigo-500 peer-focus-visible:ring-2 peer-focus-visible:ring-white peer-focus-visible:ring-opacity-75 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-orange-300"
+          class="block px-2 py-1 md:px-4 md:py-2 border rounded mr-2 peer-checked:text-blue-600 peer-checked:border-blue-600 cursor-pointer dark:peer-checked:text-blue-400 dark:peer-checked:border-blue-400 dark:border-slate-600 peer-focus:outline-none peer-focus-visible:border-indigo-500 peer-focus-visible:ring peer-focus-visible:ring-indigo-300 peer-focus-visible:ring-opacity-75"
         >
           {key}
         </label>
