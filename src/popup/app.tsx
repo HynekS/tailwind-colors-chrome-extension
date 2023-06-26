@@ -141,8 +141,8 @@ function Color({ shade, value, name }: ColorProps) {
 
   return (
     <div class="relative flex">
-      <div
-        class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5"
+      <button
+        class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5 rounded focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 focus-visible:ring-opacity-75"
         onClick={() => {
           navigator.clipboard.writeText(valueInColorSpace);
           let maybeLatestPicks = localStorage.getItem("latestPicks");
@@ -183,7 +183,7 @@ function Color({ shade, value, name }: ColorProps) {
           // Also, the rendered DOM value is always rgb, no matter what the color space is (which is Chrome default behavior).
           style={{ backgroundColor: value }}
         ></div>
-        <div class="px-0.5">
+        <div class="px-0.5 text-left">
           <div class="w-6 font-medium text-xs text-slate-900 2xl:w-full dark:text-white">
             {shade}
           </div>
@@ -191,7 +191,7 @@ function Color({ shade, value, name }: ColorProps) {
             {valueInColorSpace}
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 }
@@ -207,7 +207,7 @@ function LatestPick({ name, shade, value, version }: LatestPick) {
   });
 
   return (
-    <div class="flex items-center gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5">
+    <button class="flex items-center text-left gap-x-3 w-full cursor-pointer sm:block sm:space-y-1.5 rounded focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 focus-visible:ring-opacity-75">
       <div
         onClick={() => {
           navigator.clipboard.writeText(valueInColorSpace);
@@ -230,7 +230,7 @@ function LatestPick({ name, shade, value, version }: LatestPick) {
       <div class="hidden sm:block text-slate-500 text-xs font-mono lowercase dark:text-slate-400 sm:text-[0.625rem] md:text-xs lg:text-[0.625rem] 2xl:text-xs">
         {valueInColorSpace}
       </div>
-    </div>
+    </button>
   );
 }
 
