@@ -1,5 +1,5 @@
 import { h, render } from "preact";
-import Popup from "./popup/popup";
+import App from "./popup/app";
 
 if (
   localStorage.theme === "dark" ||
@@ -13,4 +13,4 @@ if (
   document.documentElement.classList.remove("dark");
 }
 
-render(<Popup />, document.body);
+render(<App />, document.body);

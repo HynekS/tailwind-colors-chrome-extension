@@ -12,7 +12,7 @@ import Logo from "../components/logo";
 import VersionSelect from "../components/version-select";
 import allColors from "../colors/colors";
 
-import "./popup.css";
+import "./app.css";
 
 import { getEntries } from "../utils/utils";
 import type { DeepKeys, DeepValues } from "../utils/utils";
@@ -271,7 +271,7 @@ function LatestPicks({ latestPicks }: LatestPickProps) {
   );
 }
 
-export default function Popup() {
+export default function App() {
   const [version, setVersion] = useState<Version>(() => {
     const item = localStorage.getItem("version") as (typeof versions)[number];
     if (item) return item;

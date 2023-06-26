@@ -2,8 +2,8 @@ import { h, Fragment } from "preact";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
-import { versions } from "../popup/popup";
-import type { Version } from "../popup/popup";
+import { versions } from "../popup/app";
+import type { Version } from "../popup/app";
 
 type Props = {
   onChange: (value: Version) => void;
