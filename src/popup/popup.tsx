@@ -242,7 +242,7 @@ function LatestPicks({ latestPicks }: LatestPickProps) {
   const setLatestPicks = useContext(LatestPicksContext);
 
   return (
-    <div class="fixed bottom-0 left-0 right-0 shadow border-t dark:border-t-slate-600 pt-2 pb-4 px-8 md:px-16 bg-white dark:bg-slate-900 dark:text-white">
+    <div class="fixed bottom-0 left-0 right-0 shadow border-t dark:border-t-slate-700 pt-2 pb-4 px-8 md:px-16 bg-white dark:bg-slate-900 dark:text-white">
       <h2 class="sm:mb-2 font-semibold inline-block mr-3">Latest picks</h2>
       {latestPicks.length ? (
         <button
@@ -301,7 +301,6 @@ export default function Popup() {
             } else {
               localStorage.setItem("theme", "dark");
             }
-
             document.documentElement.classList.toggle("dark");
           }}
           aria-label="toggle theme"
@@ -399,7 +398,7 @@ function ColorSpaceSelect({
 
   if (name && options) {
     return (
-      <div class="sticky top-0 z-20 shadow-lg border-b border-b-transparent px-8 md:px-16 pt-1.5 xl:pr-56 bg-white dark:bg-slate-900 dark:text-slate-300 dark:border-b-slate-600">
+      <div class="sticky top-0 z-20 shadow-lg border-b border-b-transparent px-8 md:px-16 pt-1.5 xl:pr-56 bg-white dark:bg-slate-900 dark:text-slate-300 dark:border-b-slate-700">
         <div>
           <label htmlFor={name} class="block mb-2 font-semibold">
             {label}
